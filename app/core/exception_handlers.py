@@ -1,4 +1,5 @@
 
+import logging
 from datetime import datetime, timezone
 
 from fastapi import Request, HTTPException
@@ -10,6 +11,9 @@ from app.core.exceptions import (
     InvalidProductDataError,
     ProductNotFoundError,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def error_response(
@@ -36,6 +40,11 @@ async def validation_exception_handler(
     request: Request,
     exc: RequestValidationError,
 ):
+    logger.warning(
+        "Request validation failed: path=%s",
+        request.url.path,
+    )
+
     validation_details = []
 
     for error in exc.errors():
@@ -58,6 +67,12 @@ async def http_exception_handler(
     request: Request,
     exc: HTTPException,
 ):
+    logger.warning(
+        "HTTP exception: status=%s path=%s",
+        exc.status_code,
+        request.url.path,
+    )
+
     if exc.status_code == 405:
         error = "Method Not Allowed"
         message = "Method not allowed for this endpoint"
@@ -80,6 +95,11 @@ async def product_not_found_handler(
     request: Request,
     exc: ProductNotFoundError,
 ):
+    logger.warning(
+        "Product not found: path=%s",
+        request.url.path,
+    )
+
     return error_response(
         request=request,
         status_code=404,
@@ -92,6 +112,11 @@ async def duplicate_product_handler(
     request: Request,
     exc: DuplicateProductError,
 ):
+    logger.warning(
+        "Duplicate product request: path=%s",
+        request.url.path,
+    )
+
     return error_response(
         request=request,
         status_code=409,
@@ -104,6 +129,11 @@ async def invalid_product_data_handler(
     request: Request,
     exc: InvalidProductDataError,
 ):
+    logger.warning(
+        "Invalid product data: path=%s",
+        request.url.path,
+    )
+
     return error_response(
         request=request,
         status_code=400,
@@ -116,6 +146,11 @@ async def general_exception_handler(
     request: Request,
     exc: Exception,
 ):
+    logger.exception(
+        "Unexpected application error: path=%s",
+        request.url.path,
+    )
+
     return error_response(
         request=request,
         status_code=500,
