@@ -1,302 +1,278 @@
+
 # REST Product Service
 
-A RESTful Product Management API built using **Python, FastAPI, SQLAlchemy, and PostgreSQL**. This service provides APIs to create, retrieve, update, list, filter, sort, and deactivate products.
+A RESTful Product Service built using **Python, FastAPI, PostgreSQL, and SQLAlchemy**. This service manages product information through REST APIs and follows a layered architecture.
 
 ## 1. Project Objective
 
-The objective is to build a standalone Product Service that can be used by other services in a future microservices-based e-commerce application.
+The objective is to build an independent Product Service that can manage product details for an e-commerce application.
 
-The project demonstrates:
-- REST API development using FastAPI.
-- Layered architecture: Controller, Service, and Repository.
-- PostgreSQL database integration.
-- Data validation and standardized error handling.
-- Database migrations using Alembic.
-- Unit and integration testing.
-- Service-layer test coverage above 70%.
+It demonstrates:
+- REST API development
+- Layered architecture
+- Database integration
+- Input validation
+- Error handling
+- Database migrations
+- Unit and integration testing
 
-## 2. Key Features
-
-- Create a product.
-- Retrieve a product by UUID.
-- Retrieve all products with pagination.
-- Filter products by category, status, and price range.
-- Sort products by name or price.
-- Replace a product using PUT.
-- Partially update a product using PATCH.
-- Soft-delete products by changing their status to INACTIVE.
-- Validate product data.
-- Handle duplicate product names without case sensitivity.
-- Return standardized error responses.
-- Health-check endpoint.
-
-## 3. Technologies Used
+## 2. Technologies Used
 
 | Technology | Purpose |
 |---|---|
-| Python 3.12 | Programming language |
-| FastAPI | REST API framework |
+| Python 3.12 | Backend programming |
+| FastAPI | REST API development |
 | PostgreSQL | Relational database |
 | SQLAlchemy | ORM and database operations |
 | Alembic | Database migrations |
 | Pydantic | Request and response validation |
-| Uvicorn | ASGI server |
-| Pytest | Testing framework |
-| HTTPX | API testing client |
-| Pytest-Cov | Test coverage measurement |
+| Pytest | Automated testing |
+| HTTPX | API testing |
+| Uvicorn | Application server |
 
-## 4. Architecture
+## 3. Architecture
 
 The application follows a layered architecture.
 
-### Controller Layer
-Receives HTTP requests, validates input through schemas, calls the service layer, and returns HTTP responses.
+```text
+Client
+  |
+  v
+Controller Layer
+  |
+  v
+Service Layer
+  |
+  v
+Repository Layer
+  |
+  v
+PostgreSQL Database
+```
 
-### Service Layer
-Contains business logic, validation rules, and application operations.
+- **Controller:** Receives HTTP requests and returns responses.
+- **Service:** Handles business logic and validation.
+- **Repository:** Handles database operations.
+- **Model:** Defines database tables.
+- **Schema:** Defines request and response structures.
 
-### Repository Layer
-Handles database queries and persistence operations using SQLAlchemy.
-
-### Model Layer
-Defines the database table structure.
-
-### Schema Layer
-Defines request and response data structures using Pydantic.
-
-### Request Workflow
-
-Client → Controller → Service → Repository → PostgreSQL
-
-The response follows the reverse path.
-
-## 5. Project Structure
+## 4. Project Structure
 
 ```text
 product-service/
-│
-├── alembic/
-│   └── versions/
-│
-├── app/
-│   ├── controllers/
-│   │   └── product_controller.py
-│   ├── services/
-│   │   └── product_service.py
-│   ├── repositories/
-│   │   └── product_repository.py
-│   ├── models/
-│   │   └── product.py
-│   ├── schemas/
-│   │   └── product.py
-│   ├── core/
-│   │   ├── config.py
-│   │   ├── exceptions.py
-│   │   └── exception_handlers.py
-│   ├── database/
-│   │   └── connection.py
-│   └── main.py
-│
-├── tests/
-│   ├── unit/
-│   │   └── test_product_service.py
-│   ├── integration/
-│   │   └── test_product_api.py
-│   └── conftest.py
-│
-├── docs/
-│   └── design.md
-│
-├── .env
-├── .env.example
-├── .gitignore
-├── alembic.ini
-├── README.md
-└── requirements.txt
+|
+|-- app/
+|   |-- controllers/
+|   |   |-- product_controller.py
+|   |
+|   |-- services/
+|   |   |-- product_service.py
+|   |
+|   |-- repositories/
+|   |   |-- product_repository.py
+|   |
+|   |-- models/
+|   |   |-- product.py
+|   |
+|   |-- schemas/
+|   |   |-- product.py
+|   |
+|   |-- core/
+|   |   |-- config.py
+|   |   |-- exceptions.py
+|   |   |-- exception_handlers.py
+|   |   |-- logging_config.py
+|   |
+|   |-- database/
+|   |   |-- connection.py
+|   |
+|   |-- main.py
+|
+|-- alembic/
+|   |-- versions/
+|
+|-- tests/
+|   |-- unit/
+|   |-- integration/
+|   |-- conftest.py
+|
+|-- docs/
+|   |-- design.md
+|
+|-- .env
+|-- .env.example
+|-- .gitignore
+|-- alembic.ini
+|-- README.md
+|-- requirements.txt
 ```
 
-## 6. Product Fields
+## 5. Product Details
+
+Each product contains the following fields:
 
 | Field | Description |
 |---|---|
-| id | System-generated UUID |
-| name | Required, 2–100 characters, unique ignoring case |
-| description | Optional, maximum 500 characters |
-| price | Must be greater than zero, up to 2 decimal places |
-| quantity | Integer, zero or greater |
-| category | Required, 2–50 characters |
+| id | Unique UUID |
+| name | Product name |
+| description | Optional product description |
+| price | Product price |
+| quantity | Available stock quantity |
+| category | Product category |
 | status | ACTIVE or INACTIVE |
-| created_at | System-generated creation timestamp |
-| updated_at | System-managed update timestamp |
+| created_at | Creation timestamp |
+| updated_at | Last updated timestamp |
 
-## 7. Installation and Setup
+## 6. API Endpoints
 
-### Prerequisites
+Base URL:
 
-- Python 3.12
-- PostgreSQL
-- Git
-
-### Step 1: Clone the repository
-
-```powershell
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd product-service
+```text
+http://127.0.0.1:8000/api/v1/products
 ```
 
-### Step 2: Create a virtual environment
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /api/v1/products | Create a product |
+| GET | /api/v1/products | Get all products |
+| GET | /api/v1/products/{id} | Get product by ID |
+| PUT | /api/v1/products/{id} | Replace product details |
+| PATCH | /api/v1/products/{id} | Partially update a product |
+| DELETE | /api/v1/products/{id} | Deactivate a product |
+
+Health endpoint:
+
+```text
+GET /health
+```
+
+## 7. API Features
+
+- Create, read, update, and deactivate products.
+- Validate product names, prices, quantities, and categories.
+- Prevent duplicate product names (case-insensitive).
+- Filter products by category and status.
+- Filter by minimum and maximum price.
+- Sort products by name or price.
+- Support pagination.
+- Use UUIDs for product identification.
+- Return consistent error responses.
+- Use soft deletion by changing product status to INACTIVE.
+
+## 8. Error Handling
+
+The API provides a consistent error response structure.
+
+```json
+{
+  "timestamp": "2026-11-05T10:00:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Product not found",
+  "path": "/api/v1/products/example-id",
+  "details": null
+}
+```
+
+Supported HTTP status codes include:
+
+| Status | Meaning |
+|---|---|
+| 201 | Created |
+| 204 | No Content |
+| 400 | Bad Request |
+| 404 | Not Found |
+| 405 | Method Not Allowed |
+| 409 | Conflict |
+| 500 | Internal Server Error |
+
+## 9. Logging
+
+Application logging is configured using Python's built-in logging module.
+
+- Logs important application events and errors.
+- Uses INFO and WARNING levels where appropriate.
+- Records unexpected exceptions with stack traces.
+- Sends logs to standard output (terminal).
+
+## 10. Database Migrations
+
+Alembic is used to manage database schema changes.
+
+To apply migrations:
+
+```powershell
+python -m alembic upgrade head
+```
+
+To check the current migration:
+
+```powershell
+python -m alembic current
+```
+
+## 11. Installation and Setup
+
+### Clone the repository
+
+```powershell
+git clone https://github.com/nareshkumar5253/REST-Product-Service.git
+cd REST-Product-Service
+```
+
+### Create a virtual environment
 
 ```powershell
 python -m venv venv
 ```
 
-### Step 3: Activate the virtual environment
+### Activate the virtual environment
 
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-### Step 4: Install dependencies
+### Install dependencies
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-### Step 5: Configure environment variables
+### Configure environment variables
 
-Create a `.env` file in the project root:
+Create a `.env` file using `.env.example` as a reference.
 
-```env
-APP_NAME=Product Service
-DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5432/product_service
-```
+Add your own PostgreSQL database settings. Do not share or commit your `.env` file.
 
-Replace `YOUR_PASSWORD` with your PostgreSQL password.
-
-Do not commit the actual `.env` file or database password to GitHub.
-
-### Step 6: Create the PostgreSQL database
-
-Create a database named:
-
-```sql
-CREATE DATABASE product_service;
-```
-
-### Step 7: Run database migrations
+### Run database migrations
 
 ```powershell
-alembic upgrade head
+python -m alembic upgrade head
 ```
 
-### Step 8: Start the application
+### Start the application
 
 ```powershell
 python -m uvicorn app.main:app --reload
 ```
 
-Application URL:
+## 12. API Documentation
 
-`http://127.0.0.1:8000`
+After starting the application, open:
 
-Swagger documentation:
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+- Health Check: http://127.0.0.1:8000/health
 
-`http://127.0.0.1:8000/docs`
+Swagger UI can be used to test the available endpoints.
 
-Health check:
+## 13. Testing
 
-`http://127.0.0.1:8000/health`
-
-## 8. API Endpoints
-
-Base URL: `/api/v1/products`
-
-| Method | Endpoint | Description | Success |
-|---|---|---|---|
-| POST | `/api/v1/products` | Create product | 201 |
-| GET | `/api/v1/products` | List products | 200 |
-| GET | `/api/v1/products/{id}` | Get product | 200 |
-| PUT | `/api/v1/products/{id}` | Replace product | 200 |
-| PATCH | `/api/v1/products/{id}` | Partially update product | 200 |
-| DELETE | `/api/v1/products/{id}` | Soft-delete product | 204 |
-| GET | `/health` | Health check | 200 |
-
-### Example: Create Product
-
-Request:
-
-```json
-{
-  "name": "Dell Laptop",
-  "description": "Business laptop",
-  "price": 65000.00,
-  "quantity": 20,
-  "category": "Electronics"
-}
-```
-
-### Example: List Products
-
-```text
-GET /api/v1/products?page=0&size=10
-```
-
-### Example: Filter and Sort
-
-```text
-GET /api/v1/products?category=Electronics&status=ACTIVE&minPrice=1000&maxPrice=70000&sortBy=price&sortOrder=asc
-```
-
-## 9. Error Handling
-
-The application uses a standardized error response.
-
-Example:
-
-```json
-{
-  "timestamp": "2026-11-03T07:21:37+00:00",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Product not found",
-  "path": "/api/v1/products/example-id",
-  "details": []
-}
-```
-
-Supported error codes:
-
-| Status | Meaning |
-|---|---|
-| 400 | Bad Request |
-| 404 | Product Not Found |
-| 405 | Method Not Allowed |
-| 409 | Duplicate Product |
-| 500 | Internal Server Error |
-
-## 10. Database Migrations
-
-Create a new migration:
-
-```powershell
-alembic revision --autogenerate -m "describe_change"
-```
-
-Apply migrations:
-
-```powershell
-alembic upgrade head
-```
-
-Check current migration:
-
-```powershell
-alembic current
-```
-
-## 11. Testing
-
-The project includes unit tests and API integration tests.
+The project includes:
+- Unit tests for the service layer.
+- Integration tests for API endpoints.
+- Validation and error-handling tests.
+- CRUD operation tests.
 
 Run all tests:
 
@@ -305,48 +281,40 @@ $env:PYTHONPATH = (Get-Location).Path
 python -m pytest -v
 ```
 
-Run unit tests:
+Run tests with service-layer coverage:
 
 ```powershell
-python -m pytest -v tests/unit/
-```
-
-Run integration tests:
-
-```powershell
-python -m pytest -v tests/integration/
-```
-
-Run tests with coverage:
-
-```powershell
+$env:PYTHONPATH = (Get-Location).Path
 python -m pytest -v --cov=app.services --cov-report=term-missing --cov-fail-under=70
 ```
 
-### Current Test Results
+Latest verified test results (November 5, 2026):
 
-| Metric | Result |
-|---|---:|
-| Unit tests | 27 passed |
-| Integration tests | 27 passed |
-| Total tests | 54 passed |
-| Failed tests | 0 |
-| Service-layer coverage | 92.31% |
-| Required coverage | 70% |
+- **54 tests passed**
+- **Product service coverage: 92.31%**
+- **Minimum required coverage: 70%**
 
-These results reflect the test run completed on November 3, 2026.
+## 14. GitHub Repository
 
-## 12. Future Improvements
+Repository:
 
-- Add authentication and authorization.
-- Add Docker support.
-- Add structured request logging.
-- Add service-to-service communication.
-- Integrate with Order and Inventory services.
-- Add automated CI/CD testing.
+https://github.com/nareshkumar5253/REST-Product-Service
 
-## 13. Project Status
+Development branch:
 
-**Core REST Product Service implementation and testing completed.**
+```text
+feature/product-service
+```
 
-The project demonstrates REST API development, layered architecture, PostgreSQL integration, database migrations, validation, exception handling, and automated testing.
+## 15. Project Status
+
+- REST API implementation completed.
+- PostgreSQL integration completed.
+- Database migrations completed.
+- Validation and error handling completed.
+- Logging configured.
+- Unit and integration tests completed.
+- README and design documentation prepared.
+- GitHub branch pushed.
+
+**Next step:** Create a Pull Request for mentor review and wait for approval before merging.

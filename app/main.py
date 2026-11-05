@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 
@@ -17,6 +16,11 @@ from app.core.exception_handlers import (
     product_not_found_handler,
     validation_exception_handler,
 )
+from app.core.logging_config import configure_logging
+
+
+# Configure application logging
+configure_logging()
 
 
 app = FastAPI(
